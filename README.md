@@ -8,7 +8,7 @@ A lightweight, elegant, and highly efficient web application designed to help us
 
 ---
 
-## Live demo: https://vladprogrammerbot.github.io/top-list-creator
+Live demo: https://vladprogrammerbot.github.io/top-list-creator
 
 ## 💡 The Problem & The Solution
 
