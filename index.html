@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Топ-Мейкер за допомогою Бінарних Порівнянь</title>
+    <style>
+        :root {
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-color: #2c3e50;
+            --accent-color: #3498db;
+            --accent-hover: #2980b9;
+            --success-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --border-color: #dcdde1;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        h1, h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #1a252f;
+        }
+
+        .input-section {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+
+        button {
+            padding: 12px 24px;
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s, transform 0.1s;
+        }
+
+        button:hover {
+            background-color: var(--accent-hover);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .action-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--bg-color);
+        }
+
+        .list-section {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px;
+            background: #fafafa;
+        }
+
+        .item-tag {
+            display: inline-block;
+            background: #e1e8ed;
+            padding: 6px 12px;
+            margin: 4px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Fullscreen Overlay for Comparison */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(26, 37, 47, 0.98);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            color: white;
+            padding: 20px;
+        }
+
+        .overlay-title {
+            font-size: 28px;
+            margin-bottom: 40px;
+            text-align: center;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+
+        .comparison-container {
+            display: flex;
+            gap: 30px;
+            width: 100%;
+            max-width: 1000px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .choice-card {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 40px 20px;
+            text-align: center;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-height: 200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            word-break: break-word;
+        }
+
+        .choice-card:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: var(--accent-color);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+
+        .vs {
+            font-size: 20px;
+            font-weight: bold;
+            color: #e74c3c;
+            padding: 10px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            max-width: 600px;
+            height: 6px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 3px;
+            margin-top: 40px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: var(--success-color);
+            transition: width 0.3s;
+        }
+
+        /* Results Styling */
+        .results-section {
+            margin-top: 30px;
+            display: none;
+        }
+
+        .ranking-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .ranking-table th, .ranking-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .ranking-table th {
+            background-color: var(--bg-color);
+            font-weight: 600;
+        }
+
+        .ranking-table tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        .rank-number {
+            font-weight: bold;
+            color: var(--accent-color);
+            width: 60px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Створи Свій Топ</h1>
+        <p style="text-align: center; margin-bottom: 20px; color: #7f8c8d;">
+            Введіть елементи, а алгоритм бінарної інсерції допоможе вам легко відсортувати їх за допомогою попарних порівнянь.
+        </p>
+
+        <div class="input-section">
+            <input type="text" id="itemInput" placeholder="Введіть елемент і натисніть Enter..." autocomplete="off">
+            <button id="addButton">Додати</button>
+        </div>
+
+        <div class="action-bar">
+            <div>
+                <strong>Всього елементів:</strong> <span id="itemCount">0</span>
+            </div>
+            <button id="createTopButton" style="background-color: var(--success-color);">Зіставити Топ 🏆</button>
+        </div>
+
+        <div class="list-section" id="listSection">
+            <span style="color: #95a5a6; font-style: italic; padding: 5px; display: block;" id="emptyMessage">Список порожній. Додайте елементи вище.</span>
+        </div>
+
+        <!-- Результати -->
+        <div class="results-section" id="resultsSection">
+            <h2>Ваш Фінальний Топ Ретинг</h2>
+            <table class="ranking-table">
+                <thead>
+                    <tr>
+                        <th class="rank-number">Місце</th>
+                        <th>Елемент</th>
+                    </tr>
+                </thead>
+                <tbody id="rankingBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Повноекранний інтерфейс порівняння -->
+    <div class="overlay" id="compareOverlay">
+        <div class="overlay-title" id="comparisonQuestion">Який варіант кращий?</div>
+        
+        <div class="comparison-container">
+            <div class="choice-card" id="choiceLeft">Елемент А</div>
+            <div class="vs">або</div>
+            <div class="choice-card" id="choiceRight">Елемент Б</div>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div style="margin-top: 10px; font-size: 14px; color: #bdc3c7;" id="progressText">
+            Обробка елементів...
+        </div>
+    </div>
+
+    <script>
+        // Стан додатку
+        const items = [];
+        let sortedArray = []; // Масив, який буде поступово заповнюватися відсортованими елементами
+        
+        // Змінні для керування поточним бінарним пошуком/вставкою
+        let currentItemIndex = 0; // Індекс елемента з `items`, який ми зараз вставляємо
+        let low = 0;
+        let high = 0;
+        let mid = 0;
+
+        // DOM Елементи
+        const itemInput = document.getElementById('itemInput');
+        const addButton = document.getElementById('addButton');
+        const itemCountSpan = document.getElementById('itemCount');
+        const listSection = document.getElementById('listSection');
+        const emptyMessage = document.getElementById('emptyMessage');
+        const createTopButton = document.getElementById('createTopButton');
+        
+        const compareOverlay = document.getElementById('compareOverlay');
+        const choiceLeft = document.getElementById('choiceLeft');
+        const choiceRight = document.getElementById('choiceRight');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+        
+        const resultsSection = document.getElementById('resultsSection');
+        const rankingBody = document.getElementById('rankingBody');
+
+        // Додавання елементів
+        function addItem() {
+            const value = itemInput.value.trim();
+            if (value === "") return;
+            
+            if (items.includes(value)) {
+                alert("Цей елемент вже додано!");
+                return;
+            }
+
+            items.push(value);
+            itemInput.value = "";
+            updateUIList();
+        }
+
+        function updateUIList() {
+            itemCountSpan.textContent = items.length;
+            if (items.length > 0) {
+                emptyMessage.style.display = 'none';
+            } else {
+                emptyMessage.style.display = 'block';
+            }
+
+            // Оновлюємо хмару тегів
+            listSection.innerHTML = '';
+            if (items.length === 0) listSection.appendChild(emptyMessage);
+            
+            items.forEach(item => {
+                const span = document.createElement('span');
+                span.className = 'item-tag';
+                span.textContent = item;
+                listSection.appendChild(span);
+            });
+        }
+
+        // Обробники подій для введення
+        itemInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                addItem();
+            }
+        });
+        addButton.addEventListener('click', addItem);
+
+        // Кнопка старту генерації топу
+        createTopButton.addEventListener('click', () => {
+            if (items.length < 2) {
+                alert("Будь ласка, додайте хоча б 2 елементи для порівняння.");
+                return;
+            }
+            
+            // Перемішуємо початковий масив, щоб елементи йшли випадковим чином
+            shuffleArray(items);
+            
+            // Ініціалізація алгоритму сортування вставками за допомогою бінарного пошуку
+            sortedArray = [items[0]]; // Перший елемент автоматично відсортований
+            currentItemIndex = 1;     // Починаємо вставляти другий елемент
+            
+            // Відкриваємо вікно порівняння
+            compareOverlay.style.display = 'flex';
+            resultsSection.style.display = 'none';
+            
+            startBinaryInsertionStep();
+        });
+
+        // Функція для випадкового перемішування масиву (Fisher-Yates Shuffle)
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        // Крок бінарного пошуку для поточного елемента
+        function startBinaryInsertionStep() {
+            if (currentItemIndex >= items.length) {
+                // Сортування завершено!
+                finishSorting();
+                return;
+            }
+
+            // Налаштовуємо межі бінарного пошуку в уже відсортованому масиві
+            low = 0;
+            high = sortedArray.length - 1;
+            
+            askBinaryQuestion();
+        }
+
+        function askBinaryQuestion() {
+            if (low > high) {
+                // Знайдено точне місце для вставки поточного елемента (позиція `low`)
+                sortedArray.splice(low, 0, items[currentItemIndex]);
+                
+                // Переходимо до наступного елемента
+                currentItemIndex++;
+                startBinaryInsertionStep();
+                return;
+            }
+
+            // Обчислюємо середину
+            mid = Math.floor((low + high) / 2);
+            
+            // Оновлюємо прогрес-бар
+            // Прогрес базується на тому, скільки елементів ми вже повністю вставили
+            const progressPercent = (currentItemIndex / items.length) * 100;
+            progressFill.style.width = `${progressPercent}%`;
+            progressText.textContent = `Вставляємо елемент ${currentItemIndex + 1} з ${items.length}...`;
+
+            // Виводимо пару для порівняння: поточний елемент та елемент на позиції mid
+            // Ліворуч — поточний елемент, праворуч — середина відсортованого масиву
+            choiceLeft.textContent = items[currentItemIndex];
+            choiceRight.textContent = sortedArray[mid];
+        }
+
+        // Обробка вибору користувача
+        // Припускаємо, що "КРАЩИЙ" (вищий за рейтингом) елемент повинен знаходитися на початку масиву (індекс 0).
+        function handleUserChoice(isLeftSelected) {
+            if (isLeftSelected) {
+                // Лівий (поточний елемент) КРАЩИЙ за правий (sortedArray[mid]).
+                // Значить, поточний елемент має бути вище (ближче до 0 індексу), тому шукаємо в лівій половині (менші індекси).
+                high = mid - 1;
+            } else {
+                // Правий (sortedArray[mid]) КРАЩИЙ за лівий.
+                // Значить, поточний елемент має бути нижче (далі від 0 індексу), тому шукаємо в правій половині (більші індекси).
+                low = mid + 1;
+            }
+            
+            // Наступне питання в бінарному пошуку
+            askBinaryQuestion();
+        }
+
+        choiceLeft.addEventListener('click', () => handleUserChoice(true));
+        choiceRight.addEventListener('click', () => handleUserChoice(false));
+
+        // Завершення сортування та вивід результатів
+        function finishSorting() {
+            compareOverlay.style.display = 'none';
+            resultsSection.style.display = 'block';
+            
+            rankingBody.innerHTML = '';
+            
+            // Заповнюємо таблицю результатів
+            sortedArray.forEach((item, index) => {
+                const tr = document.createElement('tr');
+                
+                const tdRank = document.createElement('td');
+                tdRank.className = 'rank-number';
+                tdRank.textContent = `#${index + 1}`;
+                
+                const tdName = document.createElement('td');
+                tdName.textContent = item;
+                
+                tr.appendChild(tdRank);
+                tr.appendChild(tdName);
+                rankingBody.appendChild(tr);
+            });
+
+            // Скролимо до результатів
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
+
