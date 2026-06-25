@@ -4,7 +4,11 @@ A lightweight, elegant, and highly efficient web application designed to help us
 
 **The concept is mine; the code was brought to life with the help of AI.**
 
+![demo](./demo.gif)
+
 ---
+
+## Live demo: https://vladprogrammerbot.github.io/top-list-creator
 
 ## 💡 The Problem & The Solution
 
